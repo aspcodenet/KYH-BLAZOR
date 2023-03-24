@@ -1,0 +1,32 @@
+﻿@page "/departments/create"
+
+@inject HttpClient _httpClient
+@inject NavigationManager _navigationManger
+
+
+<section class="col-xl-6 offset-xl-2 offset-0 col-12">
+    <h1 class="h1 mb-5">Edit employee</h1>
+    <EditForm Model="_formModel">
+        <fieldset class="form-floating mb-3">
+            <InputText class="form-control" DisplayName="Name" @bind-Value="_formModel.Name" />
+            <label class="form-label" for="Name">Name</label>
+            <ValidationMessage For="() => _formModel.Name" />
+        </fieldset>
+
+        <LoadingButton Text="Save Changes" OnSubmit="HandleValidSubmit" />
+
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+    </EditForm>
+</section>
+
+@code {
+    private DepartmentDTO _formModel = new();
+
+    private async Task HandleValidSubmit()
+    {
+        var httpResponse = await _httpClient.PostAsJsonAsync("department", _formModel);
+        await Task.Delay(1000);
+        _navigationManger.NavigateTo("/departments");
+    }
+}

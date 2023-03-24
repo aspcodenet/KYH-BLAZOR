@@ -1,0 +1,37 @@
+﻿@page "/department/edit/{departmentId}"
+@inject IDepartmentService _departmentService
+@inject NavigationManager _navigationManger
+
+
+<section class="col-xl-6 offset-xl-2 offset-0 col-12">
+    <h1 class="h1 mb-5">Edit employee</h1>
+    <EditForm Model="_formModel" OnValidSubmit="HandleValidSubmit">
+        <fieldset class="form-floating mb-3">
+            <InputText class="form-control" DisplayName="Name" @bind-Value="_formModel.Name" />
+            <label class="form-label" for="Name">Name</label>
+            <ValidationMessage For="() => _formModel.Name" />
+        </fieldset>
+        <LoadingButton Text="Save Changes" />
+
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+    </EditForm>
+</section>
+@code {
+    private DepartmentDTO _formModel = new();
+
+    [Parameter]
+    public string DepartmentId { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _formModel = await _departmentService.GetDepartmentByIdAsync(Guid.Parse(DepartmentId)) ?? new();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        _formModel = await _departmentService.EditDepartmentAsync(_formModel);
+        await Task.Delay(1000);
+        _navigationManger.NavigateTo("/departments");
+    }
+}

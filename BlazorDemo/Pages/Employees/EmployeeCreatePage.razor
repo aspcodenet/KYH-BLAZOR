@@ -1,0 +1,64 @@
+﻿@page "/employee/create"
+@inject IDepartmentService _departmentService
+@inject IEmployeeService _employeeService
+@inject NavigationManager _navigationManager
+
+<section class="col-xl-6 offset-xl-2 offset-0 col-12">
+    <h1 class="h1 mb-5">Add new employee</h1>
+    <EditForm Model="_formModel" OnValidSubmit="HandleValidSubmit">
+        <fieldset class="form-floating mb-3">
+            <InputText class="form-control" DisplayName="Name" @bind-Value="_formModel.Name" />
+            <label class="form-label" for="Name">Name</label>
+            <ValidationMessage For="() => _formModel.Name" />
+        </fieldset>
+
+        <fieldset class="form-floating mb-3">
+            <InputText class="form-control" DisplayName="Email" @bind-Value="_formModel.Email" />
+            <label class="form-label" for="Name">Email</label>
+            <ValidationMessage For="() => _formModel.Email" />
+        </fieldset>
+
+        <fieldset class="form-floating mb-3">
+            <InputNumber class="form-control" DisplayName="Salary" @bind-Value="_formModel.Salary" />
+            <label class="form-label" for="Name">Salary</label>
+            <ValidationMessage For="() => _formModel.Salary" />
+        </fieldset>
+
+        <fieldset class="form-floating mb-3">
+            <InputDate class="form-control" DisplayName="DateOfBirth" @bind-Value="_formModel.DateOfBirth" />
+            <label class="form-label" for="Name">DateOfBirth</label>
+            <ValidationMessage For="() => _formModel.DateOfBirth" />
+        </fieldset>
+
+        <fieldset class="form-floating mb-3">
+            <InputSelect class="form-control" DisplayName="DateOfBirth" @bind-Value="_formModel.Department">
+                <option value="">Chose a department</option>
+                @foreach (var department in _departments)
+                {
+                    <option value="@department">@department</option>
+                }
+            </InputSelect>
+            <label class="form-label" for="Name">Department</label>
+        </fieldset>
+        <LoadingButton Text="Save Changes" />
+        <DataAnnotationsValidator />
+    </EditForm>
+</section>
+@code {
+    private EmployeeDTO _formModel = new();
+    private IEnumerable<string> _departments = new List<string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var departments = await _departmentService.GetDepartmentsAsync();
+        _departments = departments.Select(dep => dep.Name);
+
+        _formModel.DateOfBirth = DateTime.Now;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        _formModel = await _employeeService.CreateEmployeeAsync(_formModel);
+        _navigationManager.NavigateTo("/employees");
+    }
+}

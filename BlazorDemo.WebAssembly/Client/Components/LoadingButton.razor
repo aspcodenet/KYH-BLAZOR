@@ -1,0 +1,43 @@
+﻿<button type="submit" @onclick="HandleClick" class="btn btn-success" disabled="@IsSubmitting">
+    @if (IsSubmitting)
+    {
+        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+    }
+    else
+    {
+        <i class="oi oi-check me-2"></i>
+    }
+    @Text
+</button>
+
+@code {
+    private bool isSubmitting;
+    public bool IsSubmitting
+    {
+        get { return isSubmitting; }
+        set
+        {
+            isSubmitting = value;
+            StateHasChanged();
+        }
+    }
+
+    [Parameter]
+    public required string Text { get; set; }
+
+    [CascadingParameter]
+    public required EditContext EditContext { get; set; }
+
+    [Parameter]
+    public required EventCallback OnSubmit { get; set; }
+
+    private async Task HandleClick(MouseEventArgs args)
+    {
+        if (EditContext.Validate())
+        {
+            IsSubmitting = true;
+            await OnSubmit.InvokeAsync();
+        }
+
+    }
+}

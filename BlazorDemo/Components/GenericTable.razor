@@ -1,0 +1,49 @@
+﻿@typeparam TItem where TItem : IDbDTO
+
+@if (Items is null || Items.Count() == 0)
+{
+    <h4 class="mt-5 text-center text-dark">No data found!</h4>
+}
+else
+{
+    <table class="table table-bordered table-hover table-striped table-responsive">
+        <thead>
+            <tr>
+                @TableHead
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Items)
+            {
+                <tr>
+                    @RowTemplate(item)
+                    <td class="d-flex justify-content-center">
+                        <div class="btn-group">
+                            <button class="btn btn-outline-primary"><span class="oi oi-pencil" aria-hidden="true" @onclick="@(async ()=> await OnEdit.InvokeAsync(item.Id))"></span></button>
+                            <button class="btn btn-outline-danger"><span class="oi oi-trash" aria-hidden="true" @onclick="@(async ()=> await OnDelete.InvokeAsync(item.Id))"></span></button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    [Parameter]
+    public IEnumerable<TItem>? Items { get; set; }
+
+    [Parameter]
+    public EventCallback<Guid?> OnDelete { get; set; }
+
+    [Parameter]
+    public EventCallback<Guid?> OnEdit { get; set; }
+
+    [Parameter]
+    public required RenderFragment TableHead { get; set; }
+
+    [Parameter]
+    public required RenderFragment<TItem> RowTemplate { get; set; }
+}

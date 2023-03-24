@@ -1,0 +1,51 @@
+﻿@page "/employees"
+@using BlazorDemo.Server.Components
+@using System.Globalization;
+@inject IEmployeeService _employeeService
+@inject NavigationManager _navigationManger
+
+<section class="col-xl-10 offset-xl-1 offset-0 col-12">
+    <h1 class="h1 mb-5">Our employees</h1>
+    <a class="btn btn-primary mb-3" href="/employee/create"><i class="oi oi-plus me-2"></i>Add New Employee</a>
+    <GenericTable TItem="EmployeeDTO" Items="_employees" Context="employee" OnDelete="HandleDelete" OnEdit="HandleEdit">
+        <TableHead>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Date Of Birth</th>
+            <th>Salary</th>
+            <th>Department</th>
+        </TableHead>
+        <RowTemplate>
+            <td>@employee.Name</td>
+            <td>@employee.Email</td>
+            <td>@employee.DateOfBirth.ToShortDateString()</td>
+            <td>@employee.Salary.ToString("C", new CultureInfo("sv-se"))</td>
+            <td>@(employee.Department ?? "-")</td>
+        </RowTemplate>
+    </GenericTable>
+</section>
+
+@code {
+    private IEnumerable<EmployeeDTO>? _employees;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    public void HandleEdit(Guid? employeeId)
+    {
+        _navigationManger.NavigateTo($"/employee/edit/{employeeId}");
+    }
+
+    public async Task HandleDelete(Guid? employeeId)
+    {
+        await _employeeService.DeleteEmployeeAsync(employeeId);
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        _employees = await _employeeService.GetEmployeesAsync();
+    }
+}

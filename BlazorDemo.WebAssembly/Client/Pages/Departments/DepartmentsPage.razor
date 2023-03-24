@@ -1,0 +1,43 @@
+﻿@page "/departments"
+@inject HttpClient _httpClient
+@inject NavigationManager _navigationManger
+
+<section class="col-xl-10 offset-xl-1 offset-0 col-12">
+    <h1 class="h1 mb-5">Our departments</h1>
+    <a class="btn btn-primary mb-3" href="/departments/create"><i class="oi oi-plus me-2"></i>Add New Department</a>
+    <GenericTable TItem="DepartmentDTO" Items="_departments" Context="department" OnDelete="HandleDelete" OnEdit="HandleEdit">
+        <TableHead>
+            <td>Name</td>
+            <td>Number of employees</td>
+        </TableHead>
+        <RowTemplate>
+            <td>@department.Name</td>
+            <td>@department.Employees?.Count employees</td>
+        </RowTemplate>
+    </GenericTable>
+</section>
+
+@code {
+    private IEnumerable<DepartmentDTO>? _departments;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    public void HandleEdit(Guid? departmentId)
+    {
+        _navigationManger.NavigateTo($"/departments/edit/{departmentId}");
+    }
+
+    public async Task HandleDelete(Guid? departmentId)
+    {
+        await _httpClient.DeleteAsync($"department/{departmentId}");
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        _departments = await _httpClient.GetFromJsonAsync<IEnumerable<DepartmentDTO>>("department");
+    }
+}
